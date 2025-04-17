@@ -1,5 +1,4 @@
 const { deleteRoom } = require("../db")
-const { comparePassword } = require("../helpers")
 
 const unsetRoom = async (req, res) => {
       try {
@@ -9,7 +8,7 @@ const unsetRoom = async (req, res) => {
                   res.status(200).send(msg)
             })
       } catch (error) {
-            console.log(error);
+            console.log("🛑 "+error+"\n");
       }
 }
 module.exports = unsetRoom

@@ -4,8 +4,8 @@ const { hashPassword } = require("../helpers");
 const setRoom = async (req, res) => {
       try {
             const body = req.body
-            if (!body.name) return res.status(400).send("Please write name field!");
-            if (!body.password) return res.status(400).send("Please write password field!");
+            if (!body.name) return res.status(400).send("The 'name' field is required.");
+            if (!body.password) return res.status(400).send("The 'password' field is required.");
             const hashed = await hashPassword(body.password)
             body.password = hashed
             createRoom(body, (err, msg) => {
@@ -13,7 +13,7 @@ const setRoom = async (req, res) => {
                   res.status(200).send(msg)
             });
       } catch (error) {
-            console.log(error);
+            console.log("🛑 "+error+"\n");
       }
 }
 

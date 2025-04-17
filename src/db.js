@@ -27,12 +27,12 @@ function createRoom({name, password}, callback) {
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
-          callback(null, 'Комната с таким NAME уже существует');
+          callback(null, 'A room with this name already exists.');
         } else {
           callback(err);
         }
       } else {
-        callback(null, `Комната "${name}" создана с NAME: ${name}`);
+        callback(null, `Room "${name}" was successfully created with the name "${name}"`);
       }
     }
   );
@@ -68,8 +68,8 @@ function deleteRoom(name, callback) {
         callback(err);
       } else {
         callback(null, this.changes > 0 
-          ? `Комната ${name} удалена` 
-          : 'Комната не найдена');
+          ? `Room "${name}" has been deleted.` 
+          : 'The requested room could not be found.');
       }
     }
   );
@@ -82,14 +82,14 @@ function addUser({ id, room_id, ip }, callback) {
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
-          callback(null, 'Пользователь с таким IP уже в комнате');
+          callback(null, 'A user with this IP is already in the room.');
         } else if (err.message.includes('FOREIGN KEY constraint failed')) {
-          callback(null, 'Комната не существует');
+          callback(null, 'The room could not be found.  ');
         } else {
           callback(err);
         }
       } else {
-        callback(null, `Пользователь ${id} добавлен в комнату ${room_id}`);
+        callback(null, `User ${id} has been added to room ${room_id}.`);
       }
     }
   );
@@ -104,8 +104,8 @@ function removeUser(userId, callback) {
         callback(err);
       } else {
         callback(null, this.changes > 0
-          ? `Пользователь ${userId} удален`
-          : 'Пользователь не найден');
+          ? `User ${userId} has been deleted.`
+          : 'The user could not be found.');
       }
     }
   );
