@@ -7,7 +7,7 @@ const { getRoom, removeUser } = require('../db');
 const wssinit = (server) => {
       const wss = new WebSocket.Server({ server });
       wss.on('connection', (ws) => {
-            console.log(`✅ New connection`+"\n");
+            console.log(`✅ New connection` + "\n");
             ws.on('message', (message) => {
                   try {
                         const { type, configs } = JSON.parse(message.toString());
@@ -30,23 +30,25 @@ const wssinit = (server) => {
                               if (!room) return ws.send(JSON.stringify({ type: "error", err: "Room not found" }))
                               const isPerm = await comparePassword(configs.password, room.password);
                               if (!isPerm) {
-                                    return ws.send(JSON.stringify({
-                                          type: "err",
+                                    ws.send(JSON.stringify({
+                                          type: "err-password",
                                           err: "The password you entered is incorrect."
                                     }));
+                                    return
                               }
                               switch (type) {
                                     case "get_roomates":
                                           if (!configs.ip) {
                                                 return ws.send(JSON.stringify({
-                                                      type: "err",
+                                                      type: "err-roomates",
                                                       err: "IP address is required in the Yuno config. Please provide it."
                                                 }));
                                           }
-
-                                          await updateUser(configs);
-                                          sendRoomatesList(ws, configs);
-                                          notifyNewUser(wss, configs, ws);
+                                          if (isPerm) {
+                                                await updateUser(configs);
+                                                sendRoomatesList(ws, configs);
+                                                notifyNewUser(wss, configs, ws);
+                                          }
                                           break;
                                     default:
                                           break;
@@ -61,9 +63,9 @@ const wssinit = (server) => {
             });
             ws.on('close', () => {
                   removeUser(ws.user_id, (err, msg) => {
-                        console.log("📝 "+msg+"\n");
+                        console.log("📝 " + msg + "\n");
                   })
-                  console.log(`❌ Client disconnected`+"\n");
+                  console.log(`❌ Client disconnected` + "\n");
             });
       });
       return wss
