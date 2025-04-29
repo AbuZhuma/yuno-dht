@@ -1,24 +1,43 @@
 const http = require('http');
 const express = require("express");
 const room = require("./routes/room")
+const news = require("./routes/news")
+const fb = require("./routes/feadbacks")
+
 const wssinit = require('./websocket/wss');
 const cors = require("cors")
 const { default: helmet } = require('helmet');
+const { default: rateLimit } = require('express-rate-limit');
+const { default: mongoose } = require('mongoose');
 require("dotenv").config()
 
 const app = express()
 const server = http.createServer(app);
 const PORT = process.env.PORT
 
-app.use(express.json());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  keyGenerator: (req, res) => req.clientIp,
+});
+app.use(limiter);
 app.use(cors());
 app.use(helmet());
-app.use("/room", room)
+app.use(express.json());
 
-const wss = wssinit(server)
+app.use("/room", room)
+app.use("/news", news)
+app.use("/feabdacks", fb)
+
+wssinit(server)
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 server.listen(PORT, () => {
-  console.log('🚀 Server running on '+PORT+" port");
+  console.log('🚀 Server running on ' + PORT + " port");
 });
 
 process.on('SIGINT', () => {

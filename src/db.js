@@ -27,7 +27,7 @@ function createRoom({name, password}, callback) {
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
-          callback(null, 'A room with this name already exists.');
+          callback(true, 'A room with this name already exists.');
         } else {
           callback(err);
         }

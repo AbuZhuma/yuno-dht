@@ -12,6 +12,7 @@ const wssinit = (server) => {
                   try {
                         const { type, configs } = JSON.parse(message.toString());
                         ws.user_id = configs.user_id
+                        ws.room = configs.room
                         const requiredFields = ['room', 'user_id', 'password'];
 
                         for (const field of requiredFields) {

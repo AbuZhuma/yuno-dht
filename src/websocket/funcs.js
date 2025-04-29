@@ -42,7 +42,8 @@ function notifyNewUser(wss, configs, ws) {
       });
 
       wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN && client !== ws) {
+            
+            if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room) {
                   client.send(newUserMsg);
             }
       });
