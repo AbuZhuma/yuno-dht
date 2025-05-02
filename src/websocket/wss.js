@@ -7,7 +7,6 @@ const { getRoom, removeUser } = require('../db');
 const wssinit = (server) => {
       const wss = new WebSocket.Server({ server });
       wss.on('connection', (ws) => {
-            console.log(`✅ New connection` + "\n");
             ws.on('message', (message) => {
                   try {
                         const { type, configs } = JSON.parse(message.toString());
@@ -64,9 +63,7 @@ const wssinit = (server) => {
             });
             ws.on('close', () => {
                   removeUser(ws.user_id, (err, msg) => {
-                        console.log("📝 " + msg + "\n");
                   })
-                  console.log(`❌ Client disconnected` + "\n");
             });
       });
       return wss

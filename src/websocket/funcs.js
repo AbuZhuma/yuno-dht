@@ -24,7 +24,6 @@ async function updateUser(configs) {
                         ip: configs.ip
                   }, (err, msg) => {
                         if (err) return reject(err);
-                        console.log("📝 "+msg+"\n");
                         resolve();
                   });
             });
