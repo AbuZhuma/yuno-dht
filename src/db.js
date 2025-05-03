@@ -6,6 +6,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS rooms (
       name TEXT UNIQUE,
       password TEXT,
+      status TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -15,15 +16,17 @@ db.serialize(() => {
       id TEXT UNIQUE,
       room_id TEXT NOT NULL,
       ip TEXT,
+      status TEXT, 
       FOREIGN KEY (room_id) REFERENCES rooms(name) ON DELETE CASCADE
     )
   `);
+  
 });
 
-function createRoom({name, password}, callback) {
+function createRoom({name, password, status}, callback) {
   db.run(
-    'INSERT INTO rooms (name, password) VALUES (?, ?)',
-    [name, password],
+    'INSERT INTO rooms (name, password, status) VALUES (?, ?, ?)',
+    [name, password, status],
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
@@ -75,10 +78,10 @@ function deleteRoom(name, callback) {
   );
 }
 
-function addUser({ id, room_id, ip }, callback) {
+function addUser({ id, room_id, ip, status }, callback) {
   db.run(
-    'INSERT INTO users (id, room_id, ip) VALUES (?, ?, ?)',
-    [id, room_id, ip],
+    'INSERT INTO users (id, room_id, ip, status) VALUES (?, ?, ?, ?)',
+    [id, room_id, ip, status],
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE constraint failed')) {

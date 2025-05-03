@@ -21,7 +21,8 @@ async function updateUser(configs) {
                   addUser({
                         id: configs.user_id,
                         room_id: configs.room,
-                        ip: configs.ip
+                        ip: configs.ip,
+                        status: configs.status
                   }, (err, msg) => {
                         if (err) return reject(err);
                         resolve();
@@ -30,7 +31,7 @@ async function updateUser(configs) {
       });
 }
 
-function notifyNewUser(wss, configs, ws) {
+function notifyNewUser(wss, configs, ws, status) {
       const newUserMsg = JSON.stringify({
             type: "new_user",
             user: {
@@ -39,13 +40,20 @@ function notifyNewUser(wss, configs, ws) {
                   ip: configs.ip
             }
       });
+      if (status === "public") {
+            wss.clients.forEach(client => {
+                  if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room) {
+                        client.send(newUserMsg);
+                  }
+            });
+      } else {
+            wss.clients.forEach(client => {
+                  if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room && client.status !== "public") {
+                        client.send(newUserMsg);
+                  }
+            });
+      }
 
-      wss.clients.forEach(client => {
-            
-            if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room) {
-                  client.send(newUserMsg);
-            }
-      });
 }
 
 module.exports = { sendRoomatesList, updateUser, notifyNewUser }

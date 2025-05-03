@@ -5,7 +5,7 @@ const { generateStrongPassword } = require("../../shared/helpers");
 const setRoom = async (req, res) => {
       try {
             const body = req.body
-            if (!body.name) return res.status(400).send("The 'name' field is required.");
+            if (!body.name && !body.status) return res.status(400).send("The 'name' field is required.");
             const password = await generateStrongPassword()
             const pass = `${body.name}-${password}`
             const hashed = await hashPassword(pass)
