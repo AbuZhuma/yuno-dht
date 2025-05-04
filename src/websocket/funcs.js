@@ -14,6 +14,14 @@ function sendRoomatesList(ws, configs) {
             }));
       });
 }
+function isValidJSON(jsonString) {
+      try {
+        JSON.parse(jsonString);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
 async function updateUser(configs) {
       return new Promise((resolve, reject) => {
             removeUser(configs.user_id, (err, msg) => {
@@ -40,20 +48,11 @@ function notifyNewUser(wss, configs, ws, status) {
                   ip: configs.ip
             }
       });
-      if (status === "public") {
-            wss.clients.forEach(client => {
-                  if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room) {
-                        client.send(newUserMsg);
-                  }
-            });
-      } else {
-            wss.clients.forEach(client => {
-                  if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room && client.status !== "public") {
-                        client.send(newUserMsg);
-                  }
-            });
-      }
-
+      wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN && client !== ws && ws.room === client.room && !client.isViewer) {
+                  client.send(newUserMsg);         
+            }
+      });
 }
 
-module.exports = { sendRoomatesList, updateUser, notifyNewUser }
+module.exports = { sendRoomatesList, updateUser, notifyNewUser, isValidJSON }

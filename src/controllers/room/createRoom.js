@@ -1,25 +1,66 @@
 const { createRoom } = require("../../db");
 const { hashPassword } = require("../../helpers");
+const PlusRoom = require("../../models/plusroom");
 const { generateStrongPassword } = require("../../shared/helpers");
 
 const setRoom = async (req, res) => {
-      try {
-            const body = req.body
-            if (!body.name && !body.status) return res.status(400).send("The 'name' field is required.");
-            const password = await generateStrongPassword()
-            const pass = `${body.name}-${password}`
-            const hashed = await hashPassword(pass)
-            body.password = hashed
-            createRoom(body, (err, msg) => {
-                  if (err) return res.status(400).json({msg});
-                  res.status(200).json({
-                        room: body.name, 
-                        password: pass
-                  })
-            });
-      } catch (error) {
-            console.log("🛑 "+error+"\n");
-      }
-}
+  try {
+    const body = req.body;
 
-module.exports = setRoom      
+    if (!body.name || !body.status || !body.plan) {
+      return res.status(400).json({ 
+        error: "Field 'name', 'status' and 'plan' required." 
+      });
+    }
+
+    if (body.plan !== "basic" && body.plan !== "plus") {
+      return res.status(400).json({ 
+        error: "Field 'plan' most be 'basic' or 'plus'." 
+      });
+    }
+
+    const password = await generateStrongPassword();
+    const pass = `${body.name}-${password}`;
+    const hashed = await hashPassword(pass);
+    body.password = hashed;
+
+    
+    createRoom(body, async (err, msg) => {
+      if (err) {
+        return res.status(400).json({ error: "Error create." });
+      }
+
+      if (body.plan === "plus") {
+        try {
+          const plusRoom = new PlusRoom({
+            name: body.name,
+            description: body.description || "",
+            online: body.online || 0,
+            language: body.language || "en",
+            author: body.author || "unknown",
+            company: body.company || "",
+            tags: body.tags || [],
+            technologies: body.technologies || [],
+          });
+
+          await plusRoom.save(); 
+          console.log("PlusRoom created:", plusRoom.name);
+
+        } catch (mongooseError) {
+          console.error("Error with create PlusRoom:", mongooseError.message);
+        }
+      }
+
+      res.status(200).json({
+        room: body.name,
+        password: pass, 
+        plan: body.plan,
+      });
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
+module.exports = setRoom;

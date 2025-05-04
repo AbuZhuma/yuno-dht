@@ -41,6 +41,38 @@ function createRoom({name, password, status}, callback) {
   );
 }
 
+
+function getAllPubRoom(callback) {
+  db.all(
+    'SELECT * FROM rooms WHERE status = ?',
+    ["public"],
+    (err, rooms) => {
+      if (err) return callback(err);
+      if (!rooms || rooms.length === 0) return callback(null, []);
+
+      let processedRooms = 0;
+      const resultRooms = [];
+      
+      rooms.forEach((room) => {
+        db.all(
+          'SELECT * FROM users WHERE room_id = ?',
+          [room.name],
+          (err, users) => {
+            if (err) return callback(err);
+            
+            room.users = users || [];
+            resultRooms.push(room);
+            
+            processedRooms++;
+            if (processedRooms === rooms.length) {
+              callback(null, resultRooms);
+            }
+          }
+        );
+      });
+    }
+  );
+}
 function getRoom(name, callback) {
   db.get(
     'SELECT * FROM rooms WHERE name = ?',
@@ -132,5 +164,6 @@ module.exports = {
   deleteRoom,
   addUser,
   removeUser,
-  getRoomUsers
+  getRoomUsers, 
+  getAllPubRoom
 };
