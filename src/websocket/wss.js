@@ -5,7 +5,7 @@ const webClient = require('./web');
 const { isValidJSON } = require('./funcs');
 
 const wssinit = (server) => {
-      const wss = new WebSocket.Server({ server });
+      const wss = new WebSocket.Server({ server, path: "/ws" });
       wss.on('connection', (ws) => {
             ws.on('message', (message) => {
                   if(!isValidJSON(message)) return

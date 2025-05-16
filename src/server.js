@@ -25,9 +25,9 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 
-app.use("/room", room)
-app.use("/news", news)
-app.use("/feabdacks", fb)
+app.use("/api/room", room)
+app.use("/api/news", news)
+app.use("/api/feabdacks", fb)
 
 wssinit(server)
 
