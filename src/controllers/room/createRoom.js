@@ -7,12 +7,17 @@ const setRoom = async (req, res) => {
   try {
     const body = req.body;
 
-    if (!body.name || !body.status || !body.plan) {
+    if (!body.name) {
       return res.status(400).json({ 
-        error: "Field 'name', 'status' and 'plan' required." 
+        error: "Field 'name' required." 
       });
     }
-
+    if(!body.status){
+      body.status = "private"
+    }
+    if(!body.plan){
+      body.plan="basic"
+    }
     if (body.plan !== "basic" && body.plan !== "plus") {
       return res.status(400).json({ 
         error: "Field 'plan' most be 'basic' or 'plus'." 
@@ -59,6 +64,8 @@ const setRoom = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ error: "Server error." });
   }
 };

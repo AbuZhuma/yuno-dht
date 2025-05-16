@@ -3,7 +3,7 @@ function generateStrongPassword(length = 20) {
       const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const numbers = '0123456789';
 
-      const allChars = lowercase + uppercase + numbers + symbols;
+      const allChars = lowercase + uppercase + numbers;
 
       let password = [
             lowercase[Math.floor(Math.random() * lowercase.length)],
