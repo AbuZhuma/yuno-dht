@@ -58,9 +58,9 @@ function getAllPubRoom(callback) {
           'SELECT * FROM users WHERE room_id = ?',
           [room.name],
           (err, users) => {
-            if (err) return callback(err);
-            
+            if (err) return callback(err)
             room.users = users || [];
+            
             resultRooms.push(room);
             
             processedRooms++;

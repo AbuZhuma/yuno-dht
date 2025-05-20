@@ -20,7 +20,9 @@
     "log-update": "^6.1.0",
     "mongoose": "^8.14.0",
     "morgan": "^1.10.0",
+    "nodemailer": "^7.0.3",
     "sqlite3": "^5.1.7",
+    "stripe": "^18.1.0",
     "ws": "^8.18.1"
   }
 }

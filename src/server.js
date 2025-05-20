@@ -9,6 +9,7 @@ const cors = require("cors")
 const { default: helmet } = require('helmet');
 const { default: rateLimit } = require('express-rate-limit');
 const { default: mongoose } = require('mongoose');
+const { payment } = require('./routes/payment');
 require("dotenv").config()
 
 const app = express()
@@ -28,7 +29,7 @@ app.use(express.json());
 app.use("/api/room", room)
 app.use("/api/news", news)
 app.use("/api/feabdacks", fb)
-
+app.use("/api/payment", payment)
 wssinit(server)
 
 mongoose

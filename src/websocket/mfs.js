@@ -1,6 +1,7 @@
 const { comparePassword } = require('../helpers');
 const { sendRoomatesList, updateUser, notifyNewUser } = require('../websocket/funcs');
 const { getRoom, removeUser } = require('../db');
+const PlusRoom = require('../models/plusroom');
 
 const mfsCLient = async ({ message, ws, wss }) => {
       try {
@@ -21,6 +22,10 @@ const mfsCLient = async ({ message, ws, wss }) => {
                         return ws.send(JSON.stringify({ type: "err", err: err.message }));
                   }
                   if (!room) return ws.send(JSON.stringify({ type: "error", err: "Room not found" }))
+                  const isExist = await PlusRoom.findOne({ name: configs.room })
+                  if (isExist) {
+                        ws.send(JSON.stringify({ type: "settings", settings: isExist.settings }))
+                  }
                   const isPerm = await comparePassword(configs.password, room.password);
                   if (!isPerm) {
                         if (room.status === "public") {

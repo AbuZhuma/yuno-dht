@@ -1,15 +1,20 @@
 const { createRoom } = require("../../db");
-const { hashPassword } = require("../../helpers");
+const { hashPassword, sendEmail } = require("../../helpers");
+const Key = require("../../models/key");
 const PlusRoom = require("../../models/plusroom");
 const { generateStrongPassword } = require("../../shared/helpers");
 
 const setRoom = async (req, res) => {
   try {
     const body = req.body;
-
     if (!body.name) {
       return res.status(400).json({ 
         error: "Field 'name' required." 
+      });
+    }
+    if (!body.key && body.plan === "plus") {
+      return res.status(400).json({ 
+        error: "Field 'key' required." 
       });
     }
     if(!body.status){
@@ -23,18 +28,29 @@ const setRoom = async (req, res) => {
         error: "Field 'plan' most be 'basic' or 'plus'." 
       });
     }
-
+    if (!body.email && body.plan === "plus") {
+      return res.status(400).json({ 
+        error: "Field 'email' required." 
+      });
+    }
+    const isKey = await Key.findOne({key: body.key})
+    if(!isKey && body.plan === "plus"){
+      return res.status(400).json({ 
+        error: "Key not found!" 
+      });
+    }
     const password = await generateStrongPassword();
+    const password2 = await generateStrongPassword();
     const pass = `${body.name}-${password}`;
+    const authorPass = `${body.name}-author-${password2}`;
     const hashed = await hashPassword(pass);
+    const authHashed = await hashPassword(authorPass)
     body.password = hashed;
-
-    
+    body.authorpassword = authHashed
     createRoom(body, async (err, msg) => {
       if (err) {
         return res.status(400).json({ error: "Error create." });
       }
-
       if (body.plan === "plus") {
         try {
           const plusRoom = new PlusRoom({
@@ -46,11 +62,13 @@ const setRoom = async (req, res) => {
             company: body.company || "",
             tags: body.tags || [],
             technologies: body.technologies || [],
+            password: authHashed,
+            settings: ["d", "c"]
           });
-
+          await Key.findOneAndDelete({key: body.key})
           await plusRoom.save(); 
+          await sendEmail({email: body.email, code: `main password: ${pass}\nauthor password: ${authorPass}`, subject:`${body.name} room passwords`})
           console.log("PlusRoom created:", plusRoom.name);
-
         } catch (mongooseError) {
           console.error("Error with create PlusRoom:", mongooseError.message);
         }
