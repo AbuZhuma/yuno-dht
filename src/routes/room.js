@@ -7,7 +7,7 @@ const { editRooms } = require('../controllers/room/editRoom');
 const { getRoom } = require('../controllers/room/getRoom');
 
 router.post("/", setRoom)
-router.delete("/", checkRoomAccess, unsetRoom)
+router.post("/delete", checkRoomAccess, unsetRoom)
 router.put("/", editRooms)
 router.get("/:name", getRoom)
 module.exports = router
