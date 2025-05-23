@@ -67,7 +67,16 @@ const setRoom = async (req, res) => {
           });
           await Key.findOneAndDelete({key: body.key})
           await plusRoom.save(); 
-          await sendEmail({email: body.email, code: `main password: ${pass}\nauthor password: ${authorPass}`, subject:`${body.name} room passwords`})
+          await sendEmail({
+            email: body.email,
+            subject: `Your Access Credentials ${body.name}`,
+            code: `
+              Hello,  
+              Room access passwords: 
+              Main Password: ${pass}  
+              Author Password: ${authorPass}  
+            `
+          });          
           console.log("PlusRoom created:", plusRoom.name);
         } catch (mongooseError) {
           console.error("Error with create PlusRoom:", mongooseError.message);
