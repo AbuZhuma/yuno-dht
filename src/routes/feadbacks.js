@@ -18,6 +18,7 @@ router.post("/", (req, res) => {
       res.status(200).json({message: "Feadback sended"})
 })
 router.get("/", async (req, res) => {
-
+      const all = await Fb.find()
+      res.status(200).json(all.reverse())
 })
 module.exports = router
